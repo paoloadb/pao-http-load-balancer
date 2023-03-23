@@ -20,13 +20,10 @@ globalCounter = 0
 
 func main() {
 
-	go func() {
 		fmt.Println(len(servers), " servers.")
 		http.HandleFunc("/", forwardRequest)
 		log.Fatal(http.ListenAndServe(":8080", nil))
-	}()
 
-fmt.Scanln()
 }
 
 func forwardRequest(res http.ResponseWriter, req *http.Request) {	
