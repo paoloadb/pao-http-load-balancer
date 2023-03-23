@@ -9,42 +9,39 @@ import (
 )
 
 var (
-servers = []string {
-	"http://localhost:9001",
-	"http://localhost:9000",
-	"http://localhost:9002",
-}
+servers []string
+activeServers []string
 index = 0
 globalCounter = 0
 )
 
 func main() {
-
-		fmt.Println(len(servers), " servers.")
-		http.HandleFunc("/", forwardRequest)
-		log.Fatal(http.ListenAndServe(":8080", nil))
+	servers = GetIpList("sample-list.txt")
+	fmt.Println(len(servers), " servers in list.")
+	if len(servers) == 0 {
+		log.Fatal("There's nothing on the server list")
+	}
+	http.HandleFunc("/", forwardRequest)
+	log.Fatal(http.ListenAndServe(":8080", nil))
 
 }
 
 func forwardRequest(res http.ResponseWriter, req *http.Request) {	
+	activeServers = DoHealthCheck(servers)
+	if len(activeServers) == 0 {
+		fmt.Println(("No active servers!"))
+		return
+	}
 	fmt.Println("globalcounter is at ", globalCounter)
-	if globalCounter == 3 {
+	if globalCounter >= len(activeServers) {
 		globalCounter = 0
 	}
-		u := getServerFromList()
+
+		u, err := url.Parse(activeServers[globalCounter])
+		if err != nil {
+			log.Fatal(err)
+		}
 		target := httputil.NewSingleHostReverseProxy(u)
 		target.ServeHTTP(res, req)
 	globalCounter +=1
-}
-
-func getServerFromList() *url.URL {
-	ctr := index % len(servers)
-	fmt.Println("counter at ", ctr)
-	x, err := url.Parse(servers[ctr])
-	if err != nil {
-		panic(err)
-	}
-	index++
-	fmt.Println("Serving", servers[ctr])
-	return x
 }
