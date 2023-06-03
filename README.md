@@ -8,4 +8,5 @@ read servers from a file
 server health check function  
 
 Todo:  
-Possibly run healthcheck func in a separate goroutine?
+Possibly run healthcheck func in a separate goroutine?  
+Allow comments on server list file
