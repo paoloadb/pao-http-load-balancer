@@ -6,3 +6,6 @@ only round robin for now
 Features:  
 read servers from a file  
 server health check function  
+
+Todo:  
+Possibly run healthcheck func in a separate goroutine?
